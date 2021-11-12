@@ -3,6 +3,8 @@ import './App.css';
 
 const cardList1 = [
   '-ane',
+  '-ene',
+  '-yne',
   'prop-',
   'but-',
   'pent-',
@@ -22,40 +24,6 @@ const cardList1 = [
   'bromo-'
 ]
 
-function DrawCards({ cardList }) {
-  let usedNumbers = [];
-  let team1Cards = [];
-  let team2Cards = [];
-  let i=0;
-  while (i<3) {
-    let cardIndex = Math.floor(Math.random()*(cardList.length-1));
-    console.log(cardIndex);
-    if (!usedNumbers.includes(cardIndex)) {
-      usedNumbers.push(cardIndex);
-      team1Cards.push(cardList[cardIndex]);
-      i=i+1;
-    };
-  };
-  let j=0;
-  while (j<3) {
-    let cardIndex = Math.floor(Math.random()*(cardList.length-1));
-    if (!usedNumbers.includes(cardIndex)) {
-      usedNumbers.push(cardIndex);
-      team2Cards.push(cardList[cardIndex]);
-      j=j+1;
-    };
-  };
-  console.log(cardList);
-  console.log('team1 cards', team1Cards);
-  console.log('team2 cards', team2Cards);
-  return (
-    <div>
-      <p>Team 1 Cards: <ul>{team1Cards.map(card => <li>{card}</li>)}</ul></p>
-      <p>Team 2 Cards: <ul>{team2Cards.map(card => <li>{card}</li>)}</ul></p>
-    </div>
-  )
-}
-
 function Bond({ bond, atoms }) {
   let fromAtom, toAtom;
   atoms.forEach((atom) => {
@@ -74,14 +42,126 @@ function Bond({ bond, atoms }) {
   />
 }
 
-function RandomButton({ text }) {
-  const onClick = (event) => {
-    console.log('clicked');
+// sigh
+
+function ShowOrHide(props) {
+  if (props.shown) {
+    console.log(props.shown);
+    return (
+      <ul>
+        <li>{props.hand[0]}</li>
+        <li>{props.hand[1]}</li>
+        <li>{props.hand[2]}</li>
+      </ul>
+    );
   }
   return (
-    <button onClick={onClick}>{text}</button>
-  )
+    <ul>
+      <li>###</li>
+      <li>###</li>
+      <li>###</li>
+    </ul>
+  );
 }
+
+class Hand extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleShowClick = this.handleShowClick.bind(this);
+    this.handleDrawClick = this.handleDrawClick.bind(this);
+    this.state = {
+      drawnCards: [0,0,0],
+      deck: this.props.deck,
+      isShown: false
+    }
+  }
+  handleShowClick() {
+    console.log('clicked showClicked')
+    this.setState(prevState => ({
+      isShown: !prevState.isShown
+    }));
+  }
+  handleDrawClick() {
+    console.log('clicked drawClick')
+    this.drawTeamCards();
+  }
+
+  drawTeamCards() {
+    let drawn = [];
+    let usedNumbers = [];
+    let i=0;
+    while (i<3) {
+      let cardIndex = Math.floor(Math.random()*(this.props.deck.length-1));
+      if (!usedNumbers.includes(cardIndex)) {
+        usedNumbers.push(cardIndex);
+        drawn.push(this.props.deck[cardIndex])
+        console.log(drawn);
+        i=i+1;
+      };
+    };
+    console.log(drawn);
+    this.setState({drawnCards: drawn
+    });
+  }
+
+  render () {
+    return (
+      <div>
+        <ShowOrHide shown={this.state.isShown} hand={this.state.drawnCards} />
+        <button onClick={this.handleShowClick}>
+          {this.state.isShown ? 'Hide' : 'Show'}
+        </button>
+        <button onClick={this.handleDrawClick}>
+          Draw Cards
+        </button>
+      </div>
+    )
+  }
+}
+
+
+
+  // return (
+  //   <div>
+  //     <p>Team 1 Cards: <ul>{hand.map(card => <li>{card}</li>)}</ul></p>
+  //     <button onClick={onClick}>Draw Cards</button>
+  //   </div>
+  // )
+
+// what a mess
+
+// {cardList1.map((card, index) => (
+//   <DisplayInATable key={index} arrayElement={card} />
+// ))}
+
+
+
+
+
+// class ShowHandButton extends React.Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = {isShown: false};
+//     this.handleClick = this.handleClick.bind(this);
+//   }
+
+//   handleClick() {
+//     this.setState(prevState => ({
+//       isShown: !prevState.isShown
+//     }));
+//   }
+
+//   render() {
+//     return (
+//       <div>
+//         <ShowOrHide shown={this.state.isShown} text={[1,2,3]}/>
+//         <button onClick={() => this.handleClick()}>
+//           {this.state.isShown ? 'Hide' : 'Show'}
+//         </button>
+//       </div>
+//     )
+//   }
+// }
 
 function ClearBoard() {
   const onClick = (event) => {
@@ -115,6 +195,7 @@ function App() {
   const [lineStructure, setLineStructure] = React.useState([])
   const [selectedAtomId, setSelectedAtomId] = React.useState(undefined);
   const [nextId, setNextId] = React.useState(2);
+
 
   const onMouseUp = (event) => {
     setAtoms([
@@ -158,6 +239,7 @@ function App() {
   }
 
   console.log(lineStructure);
+  console.log('I see the cardlist in here ',cardList1);
 
   // why do I need an empty event here...?
   const onMouseDown = (event) => {
@@ -194,15 +276,23 @@ function App() {
         }
       </svg>
       <div className="otherstuff">
-        <DrawCards cardList={cardList1} />
-        <RandomButton text={`Undo last`} />
-        <ClearBoard />
-        <ul>
-        {lineStructure.map((bond, index) => (
-          <DisplayInATable key={index} arrayElement={bond} />
-        ))}
-        </ul>
-        <RandomButton text={`Click Me I Don't Do Anything`}/>
+        <div className="otherstuffleft">
+          <p>Team 1 Hand</p>
+          <Hand deck={cardList1}/>
+        </div>
+        <div className="otherstuffright">
+          <p>Team 2 Hand</p>
+          <Hand deck={cardList1}/>
+        </div>
+        <div>
+            <h2>Bonds so far</h2>
+            <ul>
+            {lineStructure.map((bond, index) => (
+              <DisplayInATable key={index} arrayElement={bond} />
+            ))}
+            </ul>
+            <ClearBoard />
+        </div>
       </div>
     </div>
 

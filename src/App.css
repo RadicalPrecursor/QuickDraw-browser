@@ -11,7 +11,23 @@
 .otherstuff {
   margin: 20px;
   margin-right: 60px;
-  width: 400px;
+  width: 500px;
   border: 1px dashed white;
+  float: right;
+}
+
+.otherstuffleft {
+  padding: 10px;
+  background-color: white;
+  border: 5px solid slategrey;
+  width: 210px;
+  float: left;
+}
+
+.otherstuffright {
+  padding: 10px;
+  background-color: white;
+  border: 5px solid slategrey;
+  width: 210px;
   float: right;
 }
